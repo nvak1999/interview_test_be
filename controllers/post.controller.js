@@ -5,9 +5,9 @@ const postController = {};
 
 // Create a new post
 postController.createPost = catchAsync(async (req, res, next) => {
-  const { owner, title, content, tags } = req.body;
+  const { owner, title, content, tags, img } = req.body;
 
-  const post = await Post.create({ owner, title, content, tags });
+  const post = await Post.create({ owner, title, content, tags, img });
 
   sendResponse(res, 201, true, post, null, "Post created successfully");
 });
@@ -17,7 +17,7 @@ postController.getAllPosts = catchAsync(async (req, res, next) => {
   const { page, limit } = req.query;
 
   const parsedPage = parseInt(page) || 1;
-  const parsedLimit = parseInt(limit) || 5;
+  const parsedLimit = parseInt(limit) || 3;
 
   const skip = (parsedPage - 1) * parsedLimit;
 
