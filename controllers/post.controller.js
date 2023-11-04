@@ -19,11 +19,12 @@ postController.getAllPosts = catchAsync(async (req, res, next) => {
   const { page, limit } = req.query;
 
   const parsedPage = parseInt(page) || 1;
-  const parsedLimit = parseInt(limit) || 3;
+  const parsedLimit = parseInt(limit) || 1000;
 
   const skip = (parsedPage - 1) * parsedLimit;
 
   const posts = await Post.find({ isDeleted: false })
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(parsedLimit);
 
