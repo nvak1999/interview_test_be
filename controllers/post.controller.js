@@ -1,4 +1,5 @@
 const Post = require("../models/Post.js");
+const User = require("../models/User.js");
 const { sendResponse, catchAsync, AppError } = require("../helpers/utils");
 
 const postController = {};
@@ -25,11 +26,18 @@ postController.getAllPosts = catchAsync(async (req, res, next) => {
     .skip(skip)
     .limit(parsedLimit);
 
+  const postsWithOwnerName = [];
+  for (const post of posts) {
+    const user = await User.findById(post.owner);
+    const ownerName = user ? user.name : "Unknown";
+    postsWithOwnerName.push({ ...post.toObject(), ownerName });
+  }
+
   sendResponse(
     res,
     200,
     true,
-    posts,
+    postsWithOwnerName,
     null,
     "Get all posts retrieved successfully"
   );
