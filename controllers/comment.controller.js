@@ -1,4 +1,5 @@
 const Comment = require("../models/Comment");
+const User = require("../models/User");
 const { sendResponse, catchAsync, AppError } = require("../helpers/utils");
 
 const commentController = {};
@@ -22,7 +23,22 @@ commentController.getCommentById = catchAsync(async (req, res, next) => {
     throw new AppError(404, "Comment not found", "Get Comment error");
   }
 
-  sendResponse(res, 200, true, comment, null, "Comment retrieved successfully");
+  const user = await User.findById(comment.owner);
+  const ownerName = user ? user.name : "Unknown";
+
+  const commentWithOwnerName = {
+    ...comment.toObject(),
+    ownerName,
+  };
+
+  sendResponse(
+    res,
+    200,
+    true,
+    commentWithOwnerName,
+    null,
+    "Comment retrieved successfully"
+  );
 });
 
 // Update a comment by ID

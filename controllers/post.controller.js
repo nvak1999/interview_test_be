@@ -1,5 +1,6 @@
 const Post = require("../models/Post.js");
 const User = require("../models/User.js");
+const Comment = require("../models/Comment.js");
 const { sendResponse, catchAsync, AppError } = require("../helpers/utils");
 
 const postController = {};
@@ -27,10 +28,28 @@ postController.getAllPosts = catchAsync(async (req, res, next) => {
     .limit(parsedLimit);
 
   const postsWithOwnerName = [];
+
   for (const post of posts) {
     const user = await User.findById(post.owner);
     const ownerName = user ? user.name : "Unknown";
-    postsWithOwnerName.push({ ...post.toObject(), ownerName });
+
+    const comments = await Comment.find({ post: post._id, isDeleted: false });
+
+    const commentsWithOwnerName = [];
+    for (const comment of comments) {
+      const commentOwner = await User.findById(comment.owner);
+      const commentOwnerName = commentOwner ? commentOwner.name : "Unknown";
+      commentsWithOwnerName.push({
+        ...comment.toObject(),
+        ownerName: commentOwnerName,
+      });
+    }
+
+    postsWithOwnerName.push({
+      ...post.toObject(),
+      ownerName,
+      comments: commentsWithOwnerName,
+    });
   }
 
   sendResponse(
